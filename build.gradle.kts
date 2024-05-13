@@ -21,3 +21,7 @@ dependencies {
 repositories {
     mavenCentral()
 }
+
+application {
+    mainClass.set("io.ktor.server.netty.EngineMain")
+}

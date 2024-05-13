@@ -7,3 +7,5 @@ data class MyRequest(
     val id: String,
     val data: String
 )
+
+val requestsStorage = mutableListOf<MyRequest>()

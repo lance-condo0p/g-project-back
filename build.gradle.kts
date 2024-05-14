@@ -20,6 +20,7 @@ dependencies {
     implementation("io.ktor:ktor-client-cio:${project.property("ktor_version")}")
 
     implementation("io.ktor:ktor-client-logging:${project.property("ktor_version")}")
+    implementation("io.ktor:ktor-server-call-logging:${project.property("ktor_version")}")
     implementation("ch.qos.logback:logback-classic:${project.property("logback_version")}")
     implementation(kotlin("stdlib"))
 

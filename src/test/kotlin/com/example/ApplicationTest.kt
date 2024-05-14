@@ -9,7 +9,7 @@ import kotlin.test.*
 
 class ApplicationTest {
     @Test
-    @Ignore
+//    @Ignore
     fun `Check GET without parameters returns Empty`() = testApplication {
         val response = client.get("/my_request")
         assertEquals(

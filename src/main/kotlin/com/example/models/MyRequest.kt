@@ -1,8 +1,8 @@
 package com.example.models
 
-import kotlinx.serialization.Serializable
+//import kotlinx.serialization.Serializable
 
-@Serializable
+//@Serializable
 data class MyRequest(
     val id: String,
     val data: String

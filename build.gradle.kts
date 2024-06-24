@@ -24,6 +24,8 @@ dependencies {
     implementation("ch.qos.logback:logback-classic:${project.property("logback_version")}")
     implementation(kotlin("stdlib"))
 
+    implementation("com.assemblyai:assemblyai-java:${project.property("assemblyai_sdk_version")}")
+
     testImplementation("io.ktor:ktor-server-test-host:${project.property("ktor_version")}")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:${project.property("kotlin_version")}")
 }

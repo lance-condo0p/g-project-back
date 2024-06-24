@@ -1,18 +1,21 @@
 package com.example.routes
 
 import com.example.models.MyRequest
+import com.example.models.YandexResponse
 import com.example.models.requestsStorage
-import com.example.plugins.sendRequest
+import com.example.plugins.sendRequestAssemblyAi
+import com.example.plugins.sendRequestOpenAi
+import com.example.plugins.sendRequestYandexKit
 import io.ktor.client.*
-import io.ktor.client.request.*
+import io.ktor.client.call.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
-import io.ktor.http.cio.*
 import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.coroutines.runBlocking
+import kotlin.jvm.optionals.getOrDefault
 
 fun Route.listAllRequests() = route("/my_request") {
     get {
@@ -69,14 +72,36 @@ fun Route.deleteRequest() =  route("/my_request") {
 fun Route.proxyRequest(client: HttpClient) = route("/proxy") {
     post {
         val isProxyRequest: Boolean = call.parameters["is_proxy_request"].toBoolean()
-        if (isProxyRequest) {
 
+        if (isProxyRequest) {
+            // #1
+//            val response = runBlocking {
+//                sendRequestOpenAi(client)
+//            }
+//
+//            call.respondText(
+//                text = "Request forwarded. Here is the SC: {${response.status}}",
+//                status = HttpStatusCode.OK
+//            )
+
+            // #2
+//            val response = runBlocking {
+//                sendRequestAssemblyAi()
+//            }
+//            call.respondText(
+//                text = response?.get() ?: "none",
+//                status = HttpStatusCode.OK
+//            )
+
+            // #3
             val response = runBlocking {
-                sendRequest(client)
+                sendRequestYandexKit(client)
             }
 
+            val responseObj: YandexResponse = response.body()
+
             call.respondText(
-                text = "Request forwarded. Here is the SC: {${response.status}}",
+                text = "Request forwarded. SC is: ${response.status}, Text is: ${responseObj.result}",
                 status = HttpStatusCode.OK
             )
         } else {

@@ -3,19 +3,15 @@ package com.example.routes
 import com.example.models.MyRequest
 import com.example.models.YandexResponse
 import com.example.models.requestsStorage
-import com.example.plugins.sendRequestAssemblyAi
-import com.example.plugins.sendRequestOpenAi
 import com.example.plugins.sendRequestYandexKit
 import io.ktor.client.*
 import io.ktor.client.call.*
-import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.coroutines.runBlocking
-import kotlin.jvm.optionals.getOrDefault
 
 fun Route.listAllRequests() = route("/my_request") {
     get {

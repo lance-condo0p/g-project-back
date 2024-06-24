@@ -56,7 +56,7 @@ suspend fun sendRequestOpenAi(client: HttpClient): HttpResponse = client.request
 /**
  * https://www.assemblyai.com/app
  */
-suspend fun sendRequestAssemblyAi(): Optional<String>? {
+fun sendRequestAssemblyAi(): Optional<String>? {
     val client: AssemblyAI = AssemblyAI.builder()
         .apiKey(System.getenv("ASSEMBLYAI_API_KEY"))
         .build()

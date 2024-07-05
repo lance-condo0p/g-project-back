@@ -1,27 +1,23 @@
-package com.example.plugins
+package com.example.adapters
 
 import com.assemblyai.api.AssemblyAI
 import com.assemblyai.api.resources.transcripts.types.TranscriptOptionalParams
 import io.ktor.client.*
-import io.ktor.client.engine.cio.*
-import io.ktor.client.plugins.contentnegotiation.*
-import io.ktor.client.plugins.logging.*
 import io.ktor.client.request.*
 import io.ktor.client.request.forms.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
-import io.ktor.serialization.jackson.*
 import io.ktor.util.cio.*
 import java.io.File
-import java.util.*
 
-fun configureClient(): HttpClient = HttpClient(CIO) {
-    install(Logging) {
-        level = LogLevel.ALL
-    }
-    install(ContentNegotiation) {
-        jackson()
-    }
+enum class AdapterType {
+    Yandex, OpenAi, AssemblyAi
+}
+
+suspend fun getAIResponse(client: HttpClient, aiAdapterType: AdapterType): String = when(aiAdapterType) {
+    AdapterType.Yandex -> sendRequestYandexKit(client).bodyAsText()
+    AdapterType.OpenAi -> sendRequestOpenAi(client).bodyAsText()
+    AdapterType.AssemblyAi -> sendRequestAssemblyAi()
 }
 
 /**
@@ -56,7 +52,7 @@ suspend fun sendRequestOpenAi(client: HttpClient): HttpResponse = client.request
 /**
  * https://www.assemblyai.com/app
  */
-fun sendRequestAssemblyAi(): Optional<String>? {
+fun sendRequestAssemblyAi(): String {
     val client: AssemblyAI = AssemblyAI.builder()
         .apiKey(System.getenv("ASSEMBLYAI_API_KEY"))
         .build()
@@ -69,13 +65,7 @@ fun sendRequestAssemblyAi(): Optional<String>? {
 
     val transcript = client.transcripts().transcribe(audioUrl, params)
 
-    return transcript.text
-
-//    transcript.utterances.ifPresent { utterances: List<TranscriptUtterance> ->
-//        utterances.forEach(
-//            Consumer { utterance: TranscriptUtterance -> println("Speaker " + utterance.speaker + ": " + utterance.text) }
-//        )
-//    }
+    return transcript.text.toString()
 }
 
 /**

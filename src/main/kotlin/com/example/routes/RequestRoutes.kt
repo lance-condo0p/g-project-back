@@ -1,11 +1,10 @@
 package com.example.routes
 
+import com.example.adapters.AdapterType
+import com.example.adapters.getAIResponse
 import com.example.models.MyRequest
-import com.example.models.YandexResponse
 import com.example.models.requestsStorage
-import com.example.plugins.sendRequestYandexKit
 import io.ktor.client.*
-import io.ktor.client.call.*
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.request.*
@@ -65,39 +64,17 @@ fun Route.deleteRequest() =  route("/my_request") {
     }
 }
 
-fun Route.proxyRequest(client: HttpClient) = route("/proxy") {
+fun Route.proxyRequest(client: HttpClient, aiAdapterType: AdapterType) = route("/proxy") {
     post {
         val isProxyRequest: Boolean = call.parameters["is_proxy_request"].toBoolean()
 
         if (isProxyRequest) {
-            // #1
-//            val response = runBlocking {
-//                sendRequestOpenAi(client)
-//            }
-//
-//            call.respondText(
-//                text = "Request forwarded. Here is the SC: {${response.status}}",
-//                status = HttpStatusCode.OK
-//            )
-
-            // #2
-//            val response = runBlocking {
-//                sendRequestAssemblyAi()
-//            }
-//            call.respondText(
-//                text = response?.get() ?: "none",
-//                status = HttpStatusCode.OK
-//            )
-
-            // #3
             val response = runBlocking {
-                sendRequestYandexKit(client)
+                getAIResponse(client, aiAdapterType)
             }
 
-            val responseObj: YandexResponse = response.body()
-
             call.respondText(
-                text = "Request forwarded. SC is: ${response.status}, Text is: ${responseObj.result}",
+                text = "Request forwarded. Text is: $response",
                 status = HttpStatusCode.OK
             )
         } else {

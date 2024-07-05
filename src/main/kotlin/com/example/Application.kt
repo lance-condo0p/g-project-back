@@ -1,23 +1,19 @@
 package com.example
 
-import com.example.models.MyRequest
+import com.example.adapters.AdapterType
 import com.example.plugins.*
 import io.ktor.server.application.*
-import io.ktor.client.*
-import io.ktor.client.engine.cio.*
-import io.ktor.client.plugins.contentnegotiation.*
-import io.ktor.client.request.*
-import io.ktor.client.statement.*
-import io.ktor.client.plugins.logging.*
-import io.ktor.http.*
-import io.ktor.serialization.jackson.*
-import kotlinx.coroutines.runBlocking
 
 fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 
 fun Application.module() {
+    val aiAdapterType = AdapterType.valueOf(environment.config.propertyOrNull("ktor.application.ai_adapter")?.getString() ?: AdapterType.Yandex.toString())
+
     val client = configureClient()
-    configureRouting(client)
+    configureRouting(
+        client = client,
+        aiAdapterType = aiAdapterType
+    )
     configureSerialization()
     configureLogging()
 

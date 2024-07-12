@@ -13,7 +13,7 @@ fun Application.module() {
 
     configureAuthentication()
 
-    val isLoggingEnabled = environment.config.propertyOrNull("ktor.application.is_logging_enabled")?.getString().toBoolean() ?: false
+    val isLoggingEnabled = environment.config.propertyOrNull("ktor.application.is_logging_enabled")?.getString().toBoolean()
     if (isLoggingEnabled) {
         configureLogging()
     }

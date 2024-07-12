@@ -65,7 +65,7 @@ fun Route.deleteRequest() = route("$URL_VERSION_PREFIX/my_request") {
     }
 }
 
-fun Route.proxyRequest(client: HttpClient, aiAdapterType: AdapterType) =
+fun Route.proxyRequest() =
     route("$URL_VERSION_PREFIX/proxy") {
         post {
             val isProxyRequest: Boolean = call.parameters["is_proxy_request"].toBoolean()

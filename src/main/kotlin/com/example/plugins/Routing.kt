@@ -15,7 +15,7 @@ fun Application.configureRouting(client: HttpClient, aiAdapterType: AdapterType)
             getRequestById()
             createRequest()
             deleteRequest()
-            proxyRequest(client, aiAdapterType)
+            proxyRequest()
             transcribeRequest(client, aiAdapterType)
         }
         openAPI(path = "openapi", swaggerFile = "openapi/documentation.yaml")

@@ -8,6 +8,7 @@ import io.ktor.serialization.jackson.*
 
 fun configureClient(): HttpClient = HttpClient(CIO) {
     install(Logging) {
+        // TODO: should be based on logback config
         level = LogLevel.ALL
     }
     install(ContentNegotiation) {

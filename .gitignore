@@ -27,4 +27,4 @@ replay_pid*
 /.idea/
 /gradle/
 
-/src/main/resources/test.m4a
+/db/

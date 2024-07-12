@@ -6,6 +6,7 @@ import org.slf4j.event.Level
 
 fun Application.configureLogging() {
     install(CallLogging) {
+        // TODO: should be based on logback config
         level = Level.TRACE
     }
 }

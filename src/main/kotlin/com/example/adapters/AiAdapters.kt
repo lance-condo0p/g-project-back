@@ -3,6 +3,7 @@ package com.example.adapters
 import com.assemblyai.api.AssemblyAI
 import com.assemblyai.api.resources.transcripts.types.TranscriptOptionalParams
 import io.ktor.client.*
+import io.ktor.client.call.*
 import io.ktor.client.request.*
 import io.ktor.client.request.forms.*
 import io.ktor.client.statement.*
@@ -10,12 +11,20 @@ import io.ktor.http.*
 import io.ktor.util.cio.*
 import java.io.File
 
+import org.apache.commons.codec.binary.Base64 as ApacheBase64
+
 enum class AdapterType {
-    Yandex, OpenAi, AssemblyAi
+    Yandex,
+    OpenAi,
+    AssemblyAi,
 }
 
-suspend fun getAIResponse(client: HttpClient, aiAdapterType: AdapterType): String = when(aiAdapterType) {
-    AdapterType.Yandex -> sendRequestYandexKit(client).bodyAsText()
+data class YandexResponse(
+    val result: String,
+)
+
+suspend fun getAIResponse(client: HttpClient, aiAdapterType: AdapterType, fileBody: String): String = when(aiAdapterType) {
+    AdapterType.Yandex -> sendRequestYandexKit(client, fileBody).body<YandexResponse>().result
     AdapterType.OpenAi -> sendRequestOpenAi(client).bodyAsText()
     AdapterType.AssemblyAi -> sendRequestAssemblyAi()
 }
@@ -78,7 +87,13 @@ fun sendRequestAssemblyAi(): String {
  *    --data-binary "@speech.ogg" \
  *    "https://stt.api.cloud.yandex.net/speech/v1/stt:recognize?folderId=${FOLDER_ID}&lang=ru-RU"
  */
-suspend fun sendRequestYandexKit(client: HttpClient): HttpResponse = client.request {
+suspend fun sendRequestYandexKit(client: HttpClient, fileBody: String): HttpResponse = client.request {
+    val base64 = ApacheBase64()
+    val myBytes = base64.decode(fileBody)
+    val path: String = "db" + File.separator + System.currentTimeMillis()
+    val myFile = File(path)
+    myFile.writeBytes(myBytes)
+
     method = HttpMethod.Post
     url {
         protocol = URLProtocol.HTTPS
@@ -89,7 +104,7 @@ suspend fun sendRequestYandexKit(client: HttpClient): HttpResponse = client.requ
     headers {
         append(HttpHeaders.Authorization, "Api-Key ${System.getenv("YANDEX_API_KEY")}")
     }
-    setBody(
-        File("/Users/grigory/to_del/test.ogg").readChannel()
-    )
+    setBody(myFile.readChannel())
+    // TODO: each request generate a file on disk which is deleted on service shutdown. To revise.
+    myFile.deleteOnExit()
 }

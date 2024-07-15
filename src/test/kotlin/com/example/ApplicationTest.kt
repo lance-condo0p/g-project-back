@@ -3,6 +3,8 @@ package com.example
 import com.example.models.TranscriptVoiceRequest
 import com.example.models.TranscriptVoiceResponse
 import com.example.models.VoiceFormat
+import com.fasterxml.jackson.annotation.JsonInclude
+import com.fasterxml.jackson.databind.PropertyNamingStrategies
 import io.ktor.client.call.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
@@ -17,7 +19,10 @@ class ApplicationTest {
     fun `Send transcribe request with wrong file body`() = testApplication {
         val client = createClient {
             install(ContentNegotiation) {
-                jackson()
+                jackson {
+                    setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE) // use snake_case
+                    setSerializationInclusion(JsonInclude.Include.NON_NULL) // ignore NULL attributes
+                }
             }
         }
         client.post("/api/v1/transcribe") {

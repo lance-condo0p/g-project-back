@@ -11,9 +11,11 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.coroutines.runBlocking
 
-const val URL_VERSION_PREFIX = "/v1"
+const val URL_VERSION = "/v1"
+const val URL_NAME = "/api"
+const val URL_PREFIX = "$URL_NAME$URL_VERSION"
 
-fun Route.listAllRequests() = route("$URL_VERSION_PREFIX/my_request") {
+fun Route.listAllRequests() = route("$URL_PREFIX/my_request") {
     get {
         if (requestsStorage.isNotEmpty()) {
             call.respond(requestsStorage)
@@ -23,7 +25,7 @@ fun Route.listAllRequests() = route("$URL_VERSION_PREFIX/my_request") {
     }
 }
 
-fun Route.getRequestById() = route("$URL_VERSION_PREFIX/my_request") {
+fun Route.getRequestById() = route("$URL_PREFIX/my_request") {
     get("{id?}") {
         val id = call.parameters["id"] ?: return@get call.respondText(
             text = "Missing id",
@@ -37,7 +39,7 @@ fun Route.getRequestById() = route("$URL_VERSION_PREFIX/my_request") {
     }
 }
 
-fun Route.createRequest() = route("$URL_VERSION_PREFIX/my_request") {
+fun Route.createRequest() = route("$URL_PREFIX/my_request") {
     post {
         val requestObject = call.receive<MyRequest>()
         requestsStorage.add(requestObject)
@@ -48,7 +50,7 @@ fun Route.createRequest() = route("$URL_VERSION_PREFIX/my_request") {
     }
 }
 
-fun Route.deleteRequest() = route("$URL_VERSION_PREFIX/my_request") {
+fun Route.deleteRequest() = route("$URL_PREFIX/my_request") {
     delete("{id?}") {
         val id = call.parameters["id"] ?: return@delete call.respond(HttpStatusCode.BadRequest)
         if (requestsStorage.removeIf { it.id == id }) {
@@ -66,7 +68,7 @@ fun Route.deleteRequest() = route("$URL_VERSION_PREFIX/my_request") {
 }
 
 fun Route.proxyRequest() =
-    route("$URL_VERSION_PREFIX/proxy") {
+    route("$URL_PREFIX/proxy") {
         post {
             val isProxyRequest: Boolean = call.parameters["is_proxy_request"].toBoolean()
 
@@ -85,7 +87,7 @@ fun Route.proxyRequest() =
     }
 
 fun Route.transcribeRequest(client: HttpClient, aiAdapterType: AdapterType) =
-    route("$URL_VERSION_PREFIX/transcribe") {
+    route("$URL_PREFIX/transcribe") {
         post {
             val request = call.receive<TranscriptVoiceRequest>()
 

@@ -10,7 +10,6 @@ import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.util.cio.*
 import java.io.File
-
 import org.apache.commons.codec.binary.Base64 as ApacheBase64
 
 enum class AdapterType {
@@ -23,7 +22,7 @@ data class YandexResponse(
     val result: String,
 )
 
-suspend fun getAIResponse(client: HttpClient, aiAdapterType: AdapterType, fileBody: String): String = when(aiAdapterType) {
+suspend fun getAIResponse(client: HttpClient, aiAdapterType: AdapterType, fileBody: String): String = when (aiAdapterType) {
     AdapterType.Yandex -> sendRequestYandexKit(client, fileBody).body<YandexResponse>().result
     AdapterType.OpenAi -> sendRequestOpenAi(client).bodyAsText()
     AdapterType.AssemblyAi -> sendRequestAssemblyAi()
@@ -62,9 +61,11 @@ suspend fun sendRequestOpenAi(client: HttpClient): HttpResponse = client.request
  * https://www.assemblyai.com/app
  */
 fun sendRequestAssemblyAi(): String {
-    val client: AssemblyAI = AssemblyAI.builder()
-        .apiKey(System.getenv("ASSEMBLYAI_API_KEY"))
-        .build()
+    val client: AssemblyAI =
+        AssemblyAI
+            .builder()
+            .apiKey(System.getenv("ASSEMBLYAI_API_KEY"))
+            .build()
 
     val audioUrl = "https://storage.googleapis.com/aai-web-samples/5_common_sports_injuries.mp3"
 

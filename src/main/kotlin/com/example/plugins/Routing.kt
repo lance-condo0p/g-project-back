@@ -5,8 +5,8 @@ import com.example.routes.*
 import io.ktor.client.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
-import io.ktor.server.routing.*
 import io.ktor.server.plugins.openapi.*
+import io.ktor.server.routing.*
 
 fun Application.configureRouting(client: HttpClient, aiAdapterType: AdapterType) {
     routing {
@@ -18,6 +18,6 @@ fun Application.configureRouting(client: HttpClient, aiAdapterType: AdapterType)
             proxyRequest()
             transcribeRequest(client, aiAdapterType)
         }
-        openAPI(path = "openapi", swaggerFile = "openapi/documentation.yaml")
+        openAPI(path = "$URL_NAME/openapi", swaggerFile = "openapi/documentation.yaml")
     }
 }

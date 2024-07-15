@@ -17,13 +17,12 @@ fun Application.module() {
     if (isLoggingEnabled) {
         configureLogging()
     }
+    configureSerialization()
 
     val client = configureClient()
     configureRouting(
         client = client,
         aiAdapterType = aiAdapterType,
     )
-    configureSerialization()
-
 //    client.close()
 }

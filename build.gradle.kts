@@ -53,3 +53,9 @@ repositories {
 application {
     mainClass.set("io.ktor.server.netty.EngineMain")
 }
+
+ktor {
+    fatJar {
+        archiveFileName.set("jfm.we.g-project-back-$version.jar")
+    }
+}

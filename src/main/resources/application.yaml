@@ -5,4 +5,5 @@ ktor:
         ai_adapter: Yandex
         is_logging_enabled: true
     deployment:
-        port: 12222
+        # workaround for bug: https://youtrack.jetbrains.com/issue/KTOR-2857
+        port: "$G_PORT:12222"

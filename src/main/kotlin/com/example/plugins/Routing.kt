@@ -11,11 +11,6 @@ import io.ktor.server.routing.*
 fun Application.configureRouting(client: HttpClient, aiAdapterType: AdapterType) {
     routing {
         authenticate("auth-basic") {
-            listAllRequests()
-            getRequestById()
-            createRequest()
-            deleteRequest()
-            proxyRequest()
             transcribeRequest(client, aiAdapterType)
         }
         openAPI(path = "$URL_NAME/openapi", swaggerFile = "openapi/documentation.yaml")

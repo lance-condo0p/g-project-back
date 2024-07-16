@@ -1,12 +1,5 @@
 package com.example.models
 
-data class MyRequest(
-    val id: String,
-    val data: String,
-)
-
-val requestsStorage = mutableListOf<MyRequest>()
-
 enum class VoiceFormat {
     OGG,
 }

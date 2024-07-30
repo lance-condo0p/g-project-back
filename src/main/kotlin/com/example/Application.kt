@@ -24,5 +24,4 @@ fun Application.module() {
         client = client,
         aiAdapterType = aiAdapterType,
     )
-//    client.close()
 }

@@ -13,7 +13,7 @@ plugins {
 }
 
 group = "jfm.we"
-version = "0.0.2"
+version = "0.0.3"
 
 dependencies {
     implementation("io.ktor:ktor-server-core-jvm:$ktor_version")

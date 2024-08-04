@@ -1,0 +1,73 @@
+# https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.0.1.md
+openapi: "3.0.3"
+info:
+  title: "JFM API specification"
+  description: "An internal JSON API intended for JFM front-end system"
+  termsOfService: http://example.com/terms/
+  contact:
+    name: API Support
+    url: http://www.example.com/support
+    email: support@example.com
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
+  version: "0.0.1"
+servers:
+  - url: "http://host:12222"
+paths:
+  /api/v1/transcribe:
+    post:
+      description: "Transcribe voice to text"
+      operationId: "TranscribeVoiceToText"
+      requestBody:
+        description: "Provide an OGG file here encoded as Base64 string."
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TranscriptVoiceRequest"
+      responses:
+        "200":
+          description: "Accomplished."
+          content:
+            text/plain:
+              schema:
+                $ref: "#/components/schemas/TranscriptVoiceResponse"
+              examples:
+                Example#1:
+                  value: "Voice transcribed to text successfully."
+        "400":
+          description: "Error in input data."
+          content:
+            text/plain:
+              schema:
+                $ref: "#/components/schemas/TranscriptVoiceResponse"
+        "404":
+          description: "Authorization required."
+components:
+  schemas:
+    TranscriptVoiceRequest:
+      type: "object"
+      properties:
+        format:
+          type: "string"
+          required: true
+          "enum": [
+            "OGG",
+          ]
+          description: Specify file type.
+        file_base64:
+          type: "string"
+          required: true
+          description: File body encoded in Base64 format.
+    TranscriptVoiceResponse:
+      type: "object"
+      properties:
+        is_successful:
+          type: "boolean"
+          required: true
+          description: True if AI engine managed to decode file. False - otherwise.
+        transcription:
+          type: "string"
+          required: false
+          description: Optional result of voice transcription.

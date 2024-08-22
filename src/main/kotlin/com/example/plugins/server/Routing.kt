@@ -1,4 +1,4 @@
-package com.example.plugins
+package com.example.plugins.server
 
 import com.example.adapters.AdapterType
 import com.example.routes.*

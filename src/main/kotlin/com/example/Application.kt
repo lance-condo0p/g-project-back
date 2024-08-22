@@ -1,8 +1,9 @@
 package com.example
 
 import com.example.adapters.AdapterType
-import com.example.plugins.*
-import io.ktor.server.application.*
+import com.example.plugins.client.configureClient
+import com.example.plugins.server.*
+import io.ktor.server.application.Application
 
 fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 

@@ -8,7 +8,6 @@ import io.ktor.client.request.*
 import io.ktor.client.request.forms.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
-import io.ktor.util.cio.*
 import java.io.File
 import org.apache.commons.codec.binary.Base64 as ApacheBase64
 
@@ -89,11 +88,7 @@ fun sendRequestAssemblyAi(): String {
  *    "https://stt.api.cloud.yandex.net/speech/v1/stt:recognize?folderId=${FOLDER_ID}&lang=ru-RU"
  */
 suspend fun sendRequestYandexKit(client: HttpClient, fileBody: String): HttpResponse = client.request {
-    val base64 = ApacheBase64()
-    val myBytes = base64.decode(fileBody)
-    val path: String = "db" + File.separator + System.currentTimeMillis()
-    val myFile = File(path)
-    myFile.writeBytes(myBytes)
+    val fileAsByteArray = ApacheBase64().decode(fileBody)
 
     method = HttpMethod.Post
     url {
@@ -105,7 +100,5 @@ suspend fun sendRequestYandexKit(client: HttpClient, fileBody: String): HttpResp
     headers {
         append(HttpHeaders.Authorization, "Api-Key ${System.getenv("YANDEX_API_KEY")}")
     }
-    setBody(myFile.readChannel())
-    // TODO: each request generate a file on disk which is deleted on service shutdown. To revise.
-    myFile.deleteOnExit()
+    setBody(fileAsByteArray)
 }

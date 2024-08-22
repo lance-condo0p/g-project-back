@@ -12,6 +12,7 @@ fun Application.configureRouting(client: HttpClient, aiAdapterType: AdapterType)
     routing {
         authenticate("auth-basic") {
             transcribeRequest(client, aiAdapterType)
+            commandRequest(client, aiAdapterType)
         }
         openAPI(path = "$URL_NAME/openapi", swaggerFile = "openapi/documentation.yaml")
     }

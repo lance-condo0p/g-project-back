@@ -35,3 +35,10 @@ fun Route.transcribeRequest(client: HttpClient, aiAdapterType: AdapterType) =
             }
         }
     }
+
+fun Route.commandRequest(client: HttpClient, aiAdapterType: AdapterType) =
+    route("$URL_PREFIX/command") {
+        post {
+            TODO("Not implemented yet")
+        }
+    }

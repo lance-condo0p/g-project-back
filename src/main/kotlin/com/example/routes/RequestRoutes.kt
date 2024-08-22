@@ -19,19 +19,12 @@ fun Route.transcribeRequest(client: HttpClient, aiAdapterType: AdapterType) =
     route("$URL_PREFIX/transcribe") {
         post {
             val request = call.receive<TranscriptVoiceRequest>()
+            val response = transcribe(client, aiAdapterType, request.format, request.fileBase64)
 
-            when (request.format) {
-                VoiceFormat.OGG -> {
-                    val response =
-                        runBlocking {
-                            getAIResponse(client, aiAdapterType, request.fileBase64)
-                        }
-                    if (response.isNotEmpty()) {
-                        call.respond(HttpStatusCode.OK, TranscriptVoiceResponse(isSuccessful = true, transcription = response))
-                    } else {
-                        call.respond(HttpStatusCode.BadRequest, TranscriptVoiceResponse(isSuccessful = false))
-                    }
-                }
+            if (response.isNotEmpty()) {
+                call.respond(HttpStatusCode.OK, TranscriptVoiceResponse(isSuccessful = true, transcription = response))
+            } else {
+                call.respond(HttpStatusCode.BadRequest, TranscriptVoiceResponse(isSuccessful = false))
             }
         }
     }
@@ -39,6 +32,54 @@ fun Route.transcribeRequest(client: HttpClient, aiAdapterType: AdapterType) =
 fun Route.commandRequest(client: HttpClient, aiAdapterType: AdapterType) =
     route("$URL_PREFIX/command") {
         post {
-            TODO("Not implemented yet")
+            val request = call.receive<TranscriptVoiceRequest>()
+            val response = transcribe(client, aiAdapterType, request.format, request.fileBase64)
+
+            if (response.isNotEmpty()) {
+                val commandResponse = CommandResponse(wasRecognized = true, transcription = response)
+                val lexemes = response.split(" ", ignoreCase = true)
+                loop@ for (i in lexemes.indices) {
+//                    when (CommandType.values().findLast { it.type.equals(lexemes[i], ignoreCase = true) }) {
+                    when (CommandType.values().findLast { it.types.contains(lexemes[i].lowercase()) }) {
+                        CommandType.DICE -> {
+                            if (i < lexemes.size - 1) {
+                                val supposedNumber = lexemes[i + 1].toIntOrNull()
+                                if(supposedNumber != null) {
+                                    commandResponse.commandType = CommandType.DICE
+                                    commandResponse.commandResult = (1..supposedNumber).random()
+                                    break@loop
+                                }
+                            }
+                        }
+                        CommandType.CHARACTER -> {
+                            if (i < lexemes.size - 1) {
+                                val characterType = lexemes[i + 1]
+                                commandResponse.commandType = CommandType.CHARACTER
+                                commandResponse.commandResult = "$characterType is an awesome creature with power over than 9000!"
+                                break@loop
+                            }
+                        }
+                        else -> {
+                            commandResponse.commandType = CommandType.UNKNOWN
+                        }
+                    }
+                }
+                call.respond(HttpStatusCode.OK, commandResponse)
+            } else {
+                call.respond(HttpStatusCode.BadRequest, CommandResponse())
+            }
         }
     }
+
+private fun transcribe(client: HttpClient, aiAdapterType: AdapterType, format: VoiceFormat, fileBody: String): String {
+    var response = ""
+    when (format) {
+        VoiceFormat.OGG -> {
+            response =
+                runBlocking {
+                    getAIResponse(client, aiAdapterType, fileBody)
+                }
+        }
+    }
+    return response
+}

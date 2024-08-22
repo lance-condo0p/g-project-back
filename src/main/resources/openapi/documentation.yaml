@@ -11,7 +11,7 @@ info:
   license:
     name: Apache 2.0
     url: https://www.apache.org/licenses/LICENSE-2.0.html
-  version: "0.0.1"
+  version: "0.0.4"
 servers:
   - url: "http://host:12222"
 paths:
@@ -44,6 +44,35 @@ paths:
                 $ref: "#/components/schemas/TranscriptVoiceResponse"
         "404":
           description: "Authorization required."
+  /api/v1/command:
+    post:
+      description: "Execute a voice command"
+      operationId: "ExecuteCommand"
+      requestBody:
+        description: "Provide an OGG file here encoded as Base64 string."
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CommandRequest"
+      responses:
+        "200":
+          description: "Accomplished."
+          content:
+            text/plain:
+              schema:
+                $ref: "#/components/schemas/CommandResponse"
+              examples:
+                Example#1:
+                  value: "Command executed successfully."
+        "400":
+          description: "Error in input data."
+          content:
+            text/plain:
+              schema:
+                $ref: "#/components/schemas/CommandResponse"
+        "404":
+          description: "Authorization required."
 components:
   schemas:
     TranscriptVoiceRequest:
@@ -71,3 +100,41 @@ components:
           type: "string"
           required: false
           description: Optional result of voice transcription.
+    CommandRequest:
+      type: "object"
+      properties:
+        format:
+          type: "string"
+          required: true
+          "enum": [
+            "OGG",
+          ]
+          description: Specify file type.
+        file_base64:
+          type: "string"
+          required: true
+          description: File body encoded in Base64 format.
+    CommandResponse:
+      type: "object"
+      properties:
+        was_recognized:
+          type: "boolean"
+          required: true
+          description: True if AI engine managed to decode file. False - otherwise.
+        transcription:
+          type: "string"
+          required: false
+          description: Optional result of voice transcription.
+        commandType:
+          type: "string"
+          required: false
+          description: Command type from recognized command.
+          "enum": [
+            "DICE",
+            "CHRACTER",
+            "UNKNOWN"
+          ]
+        commandResult:
+          type: "any"
+          required: false
+          description: Contains command execution results.

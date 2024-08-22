@@ -1,9 +1,7 @@
 package com.example
 
 import com.example.model.Command
-import com.example.models.TranscriptVoiceRequest
-import com.example.models.TranscriptVoiceResponse
-import com.example.models.VoiceFormat
+import com.example.models.*
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.databind.PropertyNamingStrategies
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
@@ -77,11 +75,13 @@ class ApplicationTest {
             testClient.post("/api/v1/command") {
                 basicAuth(username = "foo", password = "bar")
                 contentType(ContentType.Application.Json)
-                setBody<TranscriptVoiceRequest>(TranscriptVoiceRequest(format = VoiceFormat.OGG, fileBase64 = voiceCommand.file))
+                setBody<CommandRequest>(CommandRequest(format = VoiceFormat.OGG, fileBase64 = voiceCommand.file))
             }.apply {
                 assertEquals(HttpStatusCode.OK, status)
-                val response = body<TranscriptVoiceResponse>()
-                assertTrue(response.isSuccessful)
+                val response = body<CommandResponse>()
+                assertTrue(response.wasRecognized)
+                assertEquals(CommandType.UNKNOWN, response.commandType)
+                assertNull(response.commandResult)
                 assertEquals(voiceCommand.text, response.transcription)
             }
         }
@@ -94,11 +94,14 @@ class ApplicationTest {
             testClient.post("/api/v1/command") {
                 basicAuth(username = "foo", password = "bar")
                 contentType(ContentType.Application.Json)
-                setBody<TranscriptVoiceRequest>(TranscriptVoiceRequest(format = VoiceFormat.OGG, fileBase64 = voiceCommand.file))
+                setBody<CommandRequest>(CommandRequest(format = VoiceFormat.OGG, fileBase64 = voiceCommand.file))
             }.apply {
                 assertEquals(HttpStatusCode.OK, status)
-                val response = body<TranscriptVoiceResponse>()
-                assertTrue(response.isSuccessful)
+                val response = body<CommandResponse>()
+                assertTrue(response.wasRecognized)
+                assertEquals(CommandType.DICE, response.commandType)
+                // TODO: to check that result is an integer
+                assertTrue(response.commandResult.toString().toInt() in 0..18)
                 assertEquals(voiceCommand.text, response.transcription)
             }
         }
@@ -111,11 +114,13 @@ class ApplicationTest {
             testClient.post("/api/v1/command") {
                 basicAuth(username = "foo", password = "bar")
                 contentType(ContentType.Application.Json)
-                setBody<TranscriptVoiceRequest>(TranscriptVoiceRequest(format = VoiceFormat.OGG, fileBase64 = voiceCommand.file))
+                setBody<CommandRequest>(CommandRequest(format = VoiceFormat.OGG, fileBase64 = voiceCommand.file))
             }.apply {
                 assertEquals(HttpStatusCode.OK, status)
-                val response = body<TranscriptVoiceResponse>()
-                assertTrue(response.isSuccessful)
+                val response = body<CommandResponse>()
+                assertEquals(CommandType.DICE, response.commandType)
+                // TODO: to check that result is an integer
+                assertTrue(response.commandResult.toString().toInt() in 0..10)
                 assertEquals(voiceCommand.text, response.transcription)
             }
         }
@@ -128,11 +133,13 @@ class ApplicationTest {
             testClient.post("/api/v1/command") {
                 basicAuth(username = "foo", password = "bar")
                 contentType(ContentType.Application.Json)
-                setBody<TranscriptVoiceRequest>(TranscriptVoiceRequest(format = VoiceFormat.OGG, fileBase64 = voiceCommand.file))
+                setBody<CommandRequest>(CommandRequest(format = VoiceFormat.OGG, fileBase64 = voiceCommand.file))
             }.apply {
                 assertEquals(HttpStatusCode.OK, status)
-                val response = body<TranscriptVoiceResponse>()
-                assertTrue(response.isSuccessful)
+                val response = body<CommandResponse>()
+                assertTrue(response.wasRecognized)
+                assertEquals(CommandType.CHARACTER, response.commandType)
+                assertNotNull(response.commandResult)
                 assertEquals(voiceCommand.text, response.transcription)
             }
         }
@@ -146,12 +153,31 @@ class ApplicationTest {
             testClient.post("/api/v1/command") {
                 basicAuth(username = "foo", password = "bar")
                 contentType(ContentType.Application.Json)
-                setBody<TranscriptVoiceRequest>(TranscriptVoiceRequest(format = VoiceFormat.OGG, fileBase64 = voiceCommand.file))
+                setBody<CommandRequest>(CommandRequest(format = VoiceFormat.OGG, fileBase64 = voiceCommand.file))
             }.apply {
                 assertEquals(HttpStatusCode.OK, status)
-                val response = body<TranscriptVoiceResponse>()
-                assertTrue(response.isSuccessful)
+                val response = body<CommandResponse>()
+                assertTrue(response.wasRecognized)
+                assertEquals(CommandType.CHARACTER, response.commandType)
+                assertNotNull(response.commandResult)
                 assertEquals(voiceCommand.text, response.transcription)
+            }
+        }
+
+    @Test
+    fun `Unknown command test`() =
+        testSuspend {
+            testClient.post("/api/v1/command") {
+                basicAuth(username = "foo", password = "bar")
+                contentType(ContentType.Application.Json)
+                setBody<CommandRequest>(CommandRequest(format = VoiceFormat.OGG, fileBase64 = "1234"))
+            }.apply {
+                assertEquals(HttpStatusCode.BadRequest, status)
+                val response = body<CommandResponse>()
+                assertFalse(response.wasRecognized)
+                assertNull(response.commandType)
+                assertNull(response.commandResult)
+                assertNull(response.transcription)
             }
         }
 

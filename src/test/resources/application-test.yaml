@@ -1,0 +1,4 @@
+ktor:
+  application:
+    ai_adapter: Yandex
+    is_logging_enabled: true

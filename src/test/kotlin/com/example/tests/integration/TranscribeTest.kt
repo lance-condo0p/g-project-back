@@ -1,5 +1,6 @@
 package com.example.tests.integration
 
+import com.example.asResource
 import com.example.model.Command
 import com.example.models.*
 import com.fasterxml.jackson.annotation.JsonInclude
@@ -94,6 +95,4 @@ class TranscribeTest {
             testApp.stop()
         }
     }
-
-    private fun String.asResource(): String = object {}.javaClass.getResource(this).readText()
 }

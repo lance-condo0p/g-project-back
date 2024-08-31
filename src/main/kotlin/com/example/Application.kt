@@ -1,7 +1,6 @@
 package com.example
 
 import com.example.adapters.AdapterType
-import com.example.plugins.client.configureClientLogging
 import com.example.plugins.server.*
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
@@ -12,7 +11,7 @@ import io.ktor.server.application.Application
 
 fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 
-val applicationHttpClient = HttpClient(CIO) {
+private val applicationHttpClient = HttpClient(CIO) {
     install(Logging) {
         // TODO: should be based on logback config
         level = LogLevel.ALL
@@ -24,7 +23,7 @@ val applicationHttpClient = HttpClient(CIO) {
 
 fun Application.module(client: HttpClient = applicationHttpClient) {
     val aiAdapterType = AdapterType.valueOf(
-        environment.config.propertyOrNull("ktor.application.ai_adapter")?.getString() ?: AdapterType.Yandex.toString()
+        environment.config.propertyOrNull("ktor.application.ai_adapter")?.getString() ?: AdapterType.Yandex.toString(),
     )
 
     configureAuthentication()

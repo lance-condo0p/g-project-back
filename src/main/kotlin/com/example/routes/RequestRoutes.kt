@@ -39,7 +39,6 @@ fun Route.commandRequest(client: HttpClient, aiAdapterType: AdapterType) =
                 val commandResponse = CommandResponse(wasRecognized = true, transcription = response)
                 val lexemes = response.split(" ", ignoreCase = true)
                 loop@ for (i in lexemes.indices) {
-//                    when (CommandType.values().findLast { it.type.equals(lexemes[i], ignoreCase = true) }) {
                     when (CommandType.values().findLast { it.types.contains(lexemes[i].lowercase()) }) {
                         CommandType.DICE -> {
                             if (i < lexemes.size - 1) {

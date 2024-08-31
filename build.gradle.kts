@@ -13,7 +13,7 @@ plugins {
 }
 
 group = "jfm.we"
-version = "0.0.4"
+version = "0.0.5"
 
 dependencies {
     implementation("io.ktor:ktor-server-core-jvm:$ktor_version")
@@ -44,6 +44,7 @@ dependencies {
 
     testImplementation("io.ktor:ktor-server-test-host:$ktor_version")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")
+    testImplementation("io.ktor:ktor-client-mock:$ktor_version")
 }
 
 repositories {

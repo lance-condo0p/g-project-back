@@ -1,4 +1,4 @@
-package com.example
+package com.example.tests.integration
 
 import com.example.model.Command
 import com.example.models.*
@@ -18,55 +18,7 @@ import org.junit.AfterClass
 import org.junit.BeforeClass
 import kotlin.test.*
 
-class ApplicationTest {
-    @Test
-    fun `Send transcribe request with wrong file body`() = testSuspend {
-        testClient.post("/api/v1/transcribe") {
-            basicAuth(username = "foo", password = "bar")
-            contentType(ContentType.Application.Json)
-            setBody<TranscriptVoiceRequest>(TranscriptVoiceRequest(format = VoiceFormat.OGG, fileBase64 = "1234"))
-        }.apply {
-            assertEquals(HttpStatusCode.BadRequest, status)
-            val response = body<TranscriptVoiceResponse>()
-            assertFalse(response.isSuccessful)
-            assertNull(response.transcription)
-        }
-    }
-
-    @Test
-    fun `Send transcribe request with short correct body`() =
-        testSuspend {
-            val voiceCommand = objectMapper.readValue<Command>("/commands/privet.json".asResource())
-
-            testClient.post("/api/v1/transcribe") {
-                basicAuth(username = "foo", password = "bar")
-                contentType(ContentType.Application.Json)
-                setBody<TranscriptVoiceRequest>(TranscriptVoiceRequest(format = VoiceFormat.OGG, fileBase64 = voiceCommand.file))
-            }.apply {
-                assertEquals(HttpStatusCode.OK, status)
-                val response = body<TranscriptVoiceResponse>()
-                assertTrue(response.isSuccessful)
-                assertEquals(voiceCommand.text, response.transcription)
-            }
-        }
-
-    @Test
-    fun `Send transcribe request with long correct body`() =
-        testSuspend {
-            val voiceCommand = objectMapper.readValue<Command>("/commands/test_odin_dva_tri_chetire_shest.json".asResource())
-
-            testClient.post("/api/v1/transcribe") {
-                basicAuth(username = "foo", password = "bar")
-                contentType(ContentType.Application.Json)
-                setBody<TranscriptVoiceRequest>(TranscriptVoiceRequest(format = VoiceFormat.OGG, fileBase64 = voiceCommand.file))
-            }.apply {
-                assertEquals(HttpStatusCode.OK, status)
-                val response = body<TranscriptVoiceResponse>()
-                assertTrue(response.isSuccessful)
-                assertEquals(voiceCommand.text, response.transcription)
-            }
-        }
-
+class CommandTest {
     @Test
     fun `Throw dice with wrong command`() =
         testSuspend {

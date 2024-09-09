@@ -1,7 +1,5 @@
 package com.example.adapters
 
-import com.assemblyai.api.AssemblyAI
-import com.assemblyai.api.resources.transcripts.types.TranscriptOptionalParams
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.request.*

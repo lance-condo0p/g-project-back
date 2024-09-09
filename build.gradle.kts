@@ -5,6 +5,7 @@ val jackson_version: String by project
 val logback_version: String by project
 val assemblyai_sdk_version: String by project
 val apache_commons_codec: String by project
+val kotlin_mockito_version: String by project
 
 plugins {
     kotlin("jvm") version "1.7.21"
@@ -38,13 +39,12 @@ dependencies {
     implementation("ch.qos.logback:logback-classic:$logback_version")
     implementation(kotlin("stdlib"))
 
-    implementation("com.assemblyai:assemblyai-java:$assemblyai_sdk_version")
-
     implementation("commons-codec:commons-codec:$apache_commons_codec")
 
     testImplementation("io.ktor:ktor-server-test-host:$ktor_version")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")
     testImplementation("io.ktor:ktor-client-mock:$ktor_version")
+    testImplementation("org.mockito.kotlin:mockito-kotlin:$kotlin_mockito_version")
 }
 
 repositories {

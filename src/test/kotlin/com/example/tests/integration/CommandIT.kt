@@ -19,7 +19,7 @@ import org.junit.AfterClass
 import org.junit.BeforeClass
 import kotlin.test.*
 
-class CommandTest {
+class CommandIT {
     @Test
     fun `Throw dice with wrong command`() =
         testSuspend {

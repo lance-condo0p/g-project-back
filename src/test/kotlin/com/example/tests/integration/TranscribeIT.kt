@@ -19,7 +19,7 @@ import org.junit.AfterClass
 import org.junit.BeforeClass
 import kotlin.test.*
 
-class TranscribeTest {
+class TranscribeIT {
     @Test
     fun `Send transcribe request with wrong file body`() = testSuspend {
         testClient.post("/api/v1/transcribe") {

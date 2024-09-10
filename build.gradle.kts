@@ -5,7 +5,7 @@ val jackson_version: String by project
 val logback_version: String by project
 val assemblyai_sdk_version: String by project
 val apache_commons_codec: String by project
-val kotlin_mockito_version: String by project
+val mockk_version: String by project
 
 plugins {
     kotlin("jvm") version "1.7.21"
@@ -44,7 +44,7 @@ dependencies {
     testImplementation("io.ktor:ktor-server-test-host:$ktor_version")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")
     testImplementation("io.ktor:ktor-client-mock:$ktor_version")
-    testImplementation("org.mockito.kotlin:mockito-kotlin:$kotlin_mockito_version")
+    testImplementation("io.mockk:mockk:$mockk_version")
 }
 
 repositories {

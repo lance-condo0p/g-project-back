@@ -1,6 +1,7 @@
 package com.example.tests.module
 
 import com.example.adapters.YandexResponse
+import com.example.adapters.sendRequestYandexKit
 import com.example.asResource
 import com.example.model.Command
 import com.example.models.*
@@ -11,61 +12,77 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import io.ktor.client.*
 import io.ktor.client.call.*
-import io.ktor.client.engine.mock.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
+import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.serialization.jackson.*
 import io.ktor.server.config.*
 import io.ktor.server.testing.*
-import io.ktor.test.dispatcher.*
+import io.mockk.coEvery
+import io.mockk.junit5.MockKExtension
+import io.mockk.mockk
+import io.mockk.mockkStatic
+import io.mockk.slot
+import kotlinx.coroutines.runBlocking
 import org.junit.AfterClass
 import org.junit.BeforeClass
 import kotlin.test.*
 
-private fun MockRequestHandleScope.handleCommandRequest(request: HttpRequestData): HttpResponseData? =
-    if (request.url.toString() == "https://stt.api.cloud.yandex.net/speech/v1/stt:recognize?topic=general") {
-        respond(
-            content = jacksonObjectMapper().writeValueAsString(YandexResponse("Кинь 18")),
-            status = HttpStatusCode.OK,
-            headers = headersOf(HttpHeaders.ContentType, "application/json"),
-        )
-    } else {
-        null
-    }
-
-private fun MockRequestHandleScope.errorResponse(): HttpResponseData {
-    return respond(
-        content = jacksonObjectMapper().writeValueAsString(YandexResponse("")),
-        status = HttpStatusCode.BadRequest,
-        headers = headersOf(HttpHeaders.ContentType, "application/json"),
-    )
-}
-
+@MockKExtension.ConfirmVerification
 class CommandTest {
     @Test
-    fun `Throw dice up to 18 with correct command (no AI connection)`() =
-        testSuspend {
-            val voiceCommand = objectMapper.readValue<Command>("/commands/kin_18.json".asResource())
+    fun `Validate proper call to Yandex API (mocked) - OK`(): Unit = runBlocking {
+        val voiceCommand = objectMapper.readValue<Command>("/commands/kin_18.json".asResource())
 
-            testClient.post("/api/v1/command") {
-                basicAuth(username = "foo", password = "bar")
-                contentType(ContentType.Application.Json)
-                setBody<CommandRequest>(CommandRequest(format = VoiceFormat.OGG, fileBase64 = voiceCommand.file))
-            }.apply {
-                assertEquals(HttpStatusCode.OK, status)
-                val response = body<CommandResponse>()
-                assertTrue(response.wasRecognized)
-                assertEquals(CommandType.DICE, response.commandType)
-                // TODO: to check that result is an integer
-                assertTrue(response.commandResult.toString().toInt() in 0..18)
-                assertEquals(voiceCommand.text, response.transcription)
-            }
+        val httpResponse = mockk<HttpResponse>()
+        coEvery { httpResponse.body<YandexResponse>() } returns YandexResponse(voiceCommand.text)
+        coEvery { httpResponse.status } returns HttpStatusCode.OK
+
+        val captureFileBody = slot<String>()
+        mockkStatic(::sendRequestYandexKit)
+        coEvery {
+            sendRequestYandexKit(
+                client = any(),
+                fileBody = capture(captureFileBody),
+            )
+        } returns httpResponse
+
+        testClient.post("/api/v1/command") {
+            basicAuth(username = "foo", password = "bar")
+            contentType(ContentType.Application.Json)
+            setBody<CommandRequest>(CommandRequest(format = VoiceFormat.OGG, fileBase64 = voiceCommand.file))
+        }.apply {
+            assertEquals(voiceCommand.file, captureFileBody.captured)
         }
+    }
+
+    @Test
+    fun `Validate response processing from Yandex API (mocked) - OK`(): Unit = runBlocking {
+        val voiceCommand = objectMapper.readValue<Command>("/commands/kin_18.json".asResource())
+
+        val httpResponse = mockk<HttpResponse>()
+        coEvery { httpResponse.body<YandexResponse>() } returns YandexResponse(voiceCommand.text)
+        coEvery { httpResponse.status } returns HttpStatusCode.OK
+
+        mockkStatic(::sendRequestYandexKit)
+        coEvery { sendRequestYandexKit(client = any(), fileBody = any()) } returns httpResponse
+
+        testClient.post("/api/v1/command") {
+            basicAuth(username = "foo", password = "bar")
+            contentType(ContentType.Application.Json)
+            setBody<CommandRequest>(CommandRequest(format = VoiceFormat.OGG, fileBase64 = voiceCommand.file))
+        }.apply {
+            val response = body<CommandResponse>()
+            assertEquals(voiceCommand.text, response.transcription)
+            assertEquals(CommandType.DICE, response.commandType)
+            assertTrue(response.wasRecognized)
+            assertTrue(response.commandResult.toString().toInt() in 1..18)
+        }
+    }
 
     companion object {
         private lateinit var testApp: TestApplication
-        private lateinit var mockEngine: MockEngine
         lateinit var testClient: HttpClient
 
         val objectMapper = jacksonObjectMapper()
@@ -73,17 +90,12 @@ class CommandTest {
         @JvmStatic
         @BeforeClass
         fun setup() {
-            mockEngine = MockEngine { request ->
-                handleCommandRequest(request)
-                    ?: errorResponse()
-            }
-
             testApp = TestApplication {
                 environment {
                     config = ApplicationConfig("application-test.conf")
                 }
                 application {
-                    module(HttpClient(mockEngine).config {
+                    module(HttpClient().config {
                         install(ContentNegotiation) {
                             jackson()
                         }

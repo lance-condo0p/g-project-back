@@ -15,8 +15,9 @@ import io.ktor.http.*
 import io.ktor.serialization.jackson.*
 import io.ktor.server.testing.*
 import io.ktor.test.dispatcher.*
-import org.junit.AfterClass
-import org.junit.BeforeClass
+import org.junit.jupiter.api.AfterAll
+import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.Test
 import kotlin.test.*
 
 class CommandIT {
@@ -141,7 +142,7 @@ class CommandIT {
         val objectMapper = jacksonObjectMapper()
 
         @JvmStatic
-        @BeforeClass
+        @BeforeAll
         fun setup() {
             testApp = TestApplication { }
             testClient =
@@ -156,7 +157,7 @@ class CommandIT {
         }
 
         @JvmStatic
-        @AfterClass
+        @AfterAll
         fun teardown() {
             testApp.stop()
         }

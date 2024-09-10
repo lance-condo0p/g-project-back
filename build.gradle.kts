@@ -42,8 +42,8 @@ dependencies {
     implementation("commons-codec:commons-codec:$apache_commons_codec")
 
     testImplementation("io.ktor:ktor-server-test-host:$ktor_version")
-    testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")
     testImplementation("io.ktor:ktor-client-mock:$ktor_version")
+    testImplementation(kotlin("test"))
     testImplementation("io.mockk:mockk:$mockk_version")
 }
 
@@ -59,4 +59,25 @@ ktor {
     fatJar {
         archiveFileName.set("jfm.we.g-project-back-$version.jar")
     }
+}
+
+tasks.test {
+    useJUnitPlatform {
+        filter {
+            includeTestsMatching("*Test")
+            excludeTestsMatching("*IT")
+        }
+    }
+}
+
+val integrationTest = tasks.register<Test>("integrationTest") {
+    useJUnitPlatform {
+        filter {
+            includeTestsMatching("*IT")
+        }
+    }
+}
+
+tasks.named("check") {
+    dependsOn(integrationTest)
 }

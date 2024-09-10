@@ -25,8 +25,9 @@ import io.mockk.mockk
 import io.mockk.mockkStatic
 import io.mockk.slot
 import kotlinx.coroutines.runBlocking
-import org.junit.AfterClass
-import org.junit.BeforeClass
+import org.junit.jupiter.api.AfterAll
+import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.Test
 import kotlin.test.*
 
 @MockKExtension.ConfirmVerification
@@ -88,7 +89,7 @@ class CommandTest {
         val objectMapper = jacksonObjectMapper()
 
         @JvmStatic
-        @BeforeClass
+        @BeforeAll
         fun setup() {
             testApp = TestApplication {
                 environment {
@@ -114,7 +115,7 @@ class CommandTest {
         }
 
         @JvmStatic
-        @AfterClass
+        @AfterAll
         fun teardown() {
             testApp.stop()
         }

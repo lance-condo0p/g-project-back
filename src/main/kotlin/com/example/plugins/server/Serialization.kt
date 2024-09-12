@@ -1,4 +1,4 @@
-package com.example.plugins
+package com.example.plugins.server
 
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.databind.PropertyNamingStrategies

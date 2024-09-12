@@ -5,6 +5,7 @@ val jackson_version: String by project
 val logback_version: String by project
 val assemblyai_sdk_version: String by project
 val apache_commons_codec: String by project
+val mockk_version: String by project
 
 plugins {
     kotlin("jvm") version "1.7.21"
@@ -13,7 +14,7 @@ plugins {
 }
 
 group = "jfm.we"
-version = "0.0.3"
+version = "0.0.5"
 
 dependencies {
     implementation("io.ktor:ktor-server-core-jvm:$ktor_version")
@@ -38,12 +39,12 @@ dependencies {
     implementation("ch.qos.logback:logback-classic:$logback_version")
     implementation(kotlin("stdlib"))
 
-    implementation("com.assemblyai:assemblyai-java:$assemblyai_sdk_version")
-
     implementation("commons-codec:commons-codec:$apache_commons_codec")
 
     testImplementation("io.ktor:ktor-server-test-host:$ktor_version")
-    testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")
+    testImplementation("io.ktor:ktor-client-mock:$ktor_version")
+    testImplementation(kotlin("test"))
+    testImplementation("io.mockk:mockk:$mockk_version")
 }
 
 repositories {
@@ -58,4 +59,25 @@ ktor {
     fatJar {
         archiveFileName.set("jfm.we.g-project-back-$version.jar")
     }
+}
+
+tasks.test {
+    useJUnitPlatform {
+        filter {
+            includeTestsMatching("*Test")
+            excludeTestsMatching("*IT")
+        }
+    }
+}
+
+val integrationTest = tasks.register<Test>("integrationTest") {
+    useJUnitPlatform {
+        filter {
+            includeTestsMatching("*IT")
+        }
+    }
+}
+
+tasks.named("check") {
+    dependsOn(integrationTest)
 }

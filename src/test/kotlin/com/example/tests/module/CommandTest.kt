@@ -1,7 +1,7 @@
 package com.example.tests.module
 
-import com.example.adapters.YandexResponse
 import com.example.adapters.sendRequestYandexKit
+import com.example.adapters.yandex.models.YandexResponse
 import com.example.asResource
 import com.example.model.Command
 import com.example.models.*

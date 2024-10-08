@@ -43,3 +43,10 @@ data class CommandResponse(
     var commandType: CommandType? = null,
     var commandResult: Any? = null,
 )
+
+data class CommandResponseCharacter(
+    val wasRecognized: Boolean = false,
+    val transcription: String? = null,
+    var commandType: CommandType? = null,
+    var commandResult: Character? = null,
+)

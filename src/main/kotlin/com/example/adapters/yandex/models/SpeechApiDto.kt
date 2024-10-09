@@ -1,5 +1,5 @@
 package com.example.adapters.yandex.models
 
-data class YandexResponse(
+data class YandexSpeechResponse(
     val result: String,
 )

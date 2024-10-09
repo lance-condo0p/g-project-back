@@ -1,6 +1,6 @@
 package com.example
 
-import com.example.adapters.AiAdapter
+import com.example.adapters.AiAdapterFactory
 import com.example.plugins.server.*
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
@@ -24,8 +24,8 @@ private val applicationHttpClient =
     }
 
 fun Application.module(client: HttpClient = applicationHttpClient) {
-    val adapterTypeValue = environment.config.propertyOrNull("ktor.application.ai_adapter")?.getString()
-    val aiAdapter = AiAdapter.getInstance(client, adapterTypeValue)
+    val adapterTypeValue = environment.config.property("ktor.application.ai_adapter")
+    val aiAdapter = AiAdapterFactory.getInstance(client, adapterTypeValue.getString())
 
     configureAuthentication()
 

@@ -9,13 +9,22 @@ import io.ktor.client.request.*
 import io.ktor.http.*
 import org.apache.commons.codec.binary.Base64
 
-enum class YandexVoiceFormats {
-    OGG,
-}
-
-class YandexAdapter(
+internal class YandexAdapter(
     private val client: HttpClient,
 ) : CallableAi {
+    private val COMPLETION_OPT_TEMPERATURE = 0.8
+    private val COMPLETION_OPT_MAX_TOKENS = "2000"
+    private val COMPLETION_OPT_STREAM = false
+
+    private val SYSTEM_ROLE_CHARACTER_SETUP =
+        "Ты - gamemaster фэнтезийной ролевой игры. " +
+            "Придумай монстра, его уникальное имя, внешний вид и способности." +
+            "Не используй Markdown!"
+
+    enum class YandexVoiceFormats {
+        OGG,
+    }
+
     override fun isSupportedFileFormat(fileFormat: String): Boolean = enumValues<YandexVoiceFormats>().any { it.name == fileFormat }
 
     /**
@@ -34,7 +43,7 @@ class YandexAdapter(
         fileBody: String,
     ): AiAdapterResponse {
         if (!isSupportedFileFormat(fileFormat)) {
-            return AiAdapterResponse(false, "Opps :(")
+            return AiAdapterResponse(false)
         }
         val response =
             client.request {
@@ -53,11 +62,11 @@ class YandexAdapter(
                 setBody(fileAsByteArray)
             }
         return if (response.status == HttpStatusCode.OK) {
-            val goodResponse = response.body<YandexResponse>().result
-            AiAdapterResponse(true, goodResponse)
+            val responseResult = response.body<YandexSpeechResponse>().result
+            AiAdapterResponse(true, responseResult)
         } else {
             // ToDO: bad response
-            AiAdapterResponse(false, "Opps :(")
+            AiAdapterResponse(false)
         }
     }
 
@@ -91,15 +100,19 @@ class YandexAdapter(
                 setBody<YandexGPTRequest>(
                     YandexGPTRequest(
                         modelUri = "gpt://${System.getenv("YANDEX_GPT_FOLDER_ID")}/yandexgpt-lite",
-                        completionOptions = YandexCompletionOptions(),
+                        completionOptions = CompletionOptions(
+                                stream = COMPLETION_OPT_STREAM,
+                                temperature = COMPLETION_OPT_TEMPERATURE,
+                                maxTokens = COMPLETION_OPT_MAX_TOKENS,
+                            ),
                         messages =
                             listOf(
-                                YandexMessage(
-                                    role = YandexRole.system,
-                                    text = GPT_SYSTEM,
+                                Message(
+                                    role = MessageRole.system,
+                                    text = SYSTEM_ROLE_CHARACTER_SETUP,
                                 ),
-                                YandexMessage(
-                                    role = YandexRole.user,
+                                Message(
+                                    role = MessageRole.user,
                                     text = gptCommand,
                                 ),
                             ),
@@ -107,22 +120,22 @@ class YandexAdapter(
                 )
             }
         return if (response.status == HttpStatusCode.OK) {
-            val goodResponse =
+            val responseMessage =
                 response
                     .body<YandexGPTResponse>()
                     .result.alternatives
-                    .findLast { it.message.role == YandexRole.assistant }
+                    .findLast { it.message.role == MessageRole.assistant }
                     ?.message
                     ?.text
-            if (goodResponse != null) {
-                AiAdapterResponse(true, goodResponse)
+            if (responseMessage != null) {
+                AiAdapterResponse(true, responseMessage)
             } else {
                 // ToDO: bad response
-                AiAdapterResponse(false, "Opps :(")
+                AiAdapterResponse(false)
             }
         } else {
             // ToDO: bad response
-            AiAdapterResponse(false, "Opps :(")
+            AiAdapterResponse(false)
         }
     }
 }

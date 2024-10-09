@@ -184,7 +184,7 @@ class CommandTest {
         testApp =
             TestApplication {
                 environment {
-                    config = ApplicationConfig("application-test.conf")
+                    config = ApplicationConfig("application-test.yaml")
                 }
                 application {
                     module(

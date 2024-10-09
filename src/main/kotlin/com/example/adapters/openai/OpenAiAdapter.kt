@@ -8,19 +8,19 @@ import io.ktor.client.request.forms.*
 import io.ktor.http.*
 import org.apache.commons.codec.binary.Base64
 
-enum class OpenAiVoiceFormats {
-    MP3,
-    MP4,
-    MPEG,
-    MPGA,
-    M4A,
-    WAV,
-    WEBM,
-}
-
-class OpenAiAdapter(
+internal class OpenAiAdapter(
     private val client: HttpClient,
 ) : CallableAi {
+    enum class OpenAiVoiceFormats {
+        MP3,
+        MP4,
+        MPEG,
+        MPGA,
+        M4A,
+        WAV,
+        WEBM,
+    }
+
     override fun isSupportedFileFormat(fileFormat: String): Boolean = enumValues<OpenAiVoiceFormats>().any { it.name == fileFormat }
 
     /**
@@ -36,7 +36,7 @@ class OpenAiAdapter(
         fileBody: String,
     ): AiAdapterResponse {
         if (!isSupportedFileFormat(fileFormat)) {
-            return AiAdapterResponse(false, "Opps :(")
+            return AiAdapterResponse(false)
         }
         val response =
             client.request {
